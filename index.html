@@ -53,17 +53,19 @@
 
 <body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-500 via-rose-500 to-red-500 text-white overflow-hidden">
 
-  <!-- 🔊 ENABLE SOUND OVERLAY (MOBILE FIX) -->
+  <!-- 🔊 PLAY MUSIC OVERLAY (MOBILE SAFE) -->
   <div id="soundOverlay"
-       class="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
-    <button onclick="enableSound()"
-      class="bg-white text-lovePink px-6 py-4 rounded-full font-bold text-lg animate-pulse">
-      🔊 Tap to enable sound
+       class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 text-center px-6">
+    <p class="text-lg mb-6 opacity-90">Best experienced with sound 🎧</p>
+    <button id="playBtn"
+      class="bg-white text-lovePink px-8 py-4 rounded-full font-bold text-xl shadow-xl active:scale-95">
+      ▶ Play Music
     </button>
+    <p class="mt-4 text-sm opacity-70">(Tap once to continue)</p>
   </div>
 
   <!-- 🎵 BACKGROUND MUSIC -->
-  <audio id="bgMusic" preload="auto" loop>
+  <audio id="bgMusic" loop playsinline>
     <source src="audio/bg-music.mp3" type="audio/mpeg">
   </audio>
 
@@ -105,7 +107,7 @@
   <div id="surprise"
        class="hidden relative z-10 bg-white/20 backdrop-blur-xl rounded-2xl p-6 max-w-sm text-center shadow-2xl space-y-6 overflow-y-auto max-h-[85vh]">
 
-    <h1 class="text-3xl font-extrabold tracking-wide mb-2 cinematic drop-shadow-[0_6px_20px_rgba(255,0,120,0.6)]">
+    <h1 class="text-3xl font-extrabold tracking-wide cinematic drop-shadow-[0_6px_20px_rgba(255,0,120,0.6)]">
       🔥 You chose the RIGHT choice 🔥
     </h1>
 
@@ -113,9 +115,9 @@
       And this… is what you deserve 💎❤️
     </p>
 
-    <!-- 🎥 VIDEO FIRST -->
+    <!-- 🎥 VIDEO -->
     <div class="bg-black/30 rounded-xl p-2 shadow-lg">
-      <video controls class="w-full rounded-lg">
+      <video id="mainVideo" controls class="w-full rounded-lg">
         <source src="PHOTOS/om.mp4" type="video/mp4">
       </video>
     </div>
@@ -150,12 +152,24 @@
       setTimeout(() => heart.remove(), 7000);
     }, 500);
 
-    function enableSound() {
-      const music = document.getElementById('bgMusic');
-      music.volume = 0.4;
-      music.play().catch(() => {});
-      document.getElementById('soundOverlay').style.display = 'none';
+    const playBtn = document.getElementById('playBtn');
+    const bgMusic = document.getElementById('bgMusic');
+    const video = document.getElementById('mainVideo');
+
+    function startMusic() {
+      bgMusic.volume = 0.4;
+      bgMusic.play().then(() => {
+        document.getElementById('soundOverlay').style.display = 'none';
+      }).catch(() => {});
     }
+
+    playBtn.addEventListener('click', startMusic);
+    playBtn.addEventListener('touchstart', startMusic);
+
+    // Pause bg music during video
+    video.addEventListener('play', () => bgMusic.pause());
+    video.addEventListener('pause', () => bgMusic.play().catch(()=>{}));
+    video.addEventListener('ended', () => bgMusic.play().catch(()=>{}));
 
     function nextStep() {
       document.getElementById('start').classList.add('hidden');
