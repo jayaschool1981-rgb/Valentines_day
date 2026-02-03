@@ -1,183 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <title>💖 14 February 💖</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+  <title>💖 14 February 💖</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Tailwind CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        lovePink: '#ff2f92',
-                        loveRed: '#ff004c'
-                    }
-                }
-            }
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            lovePink: '#ff2f92',
+            loveRed: '#ff004c'
+          }
         }
-    </script>
+      }
+    }
+  </script>
 
-    <!-- ❤️ HEART ANIMATION STYLES -->
-    <style>
-        .heart {
-            position: fixed;
-            bottom: -20px;
-            font-size: 20px;
-            animation: floatUp linear forwards;
-            pointer-events: none;
-            z-index: 0;
-        }
+  <!-- ❤️ HEART + CINEMATIC STYLES -->
+  <style>
+    .heart {
+      position: fixed;
+      bottom: -20px;
+      pointer-events: none;
+      animation: floatUp linear forwards;
+      z-index: 0;
+    }
 
-        @keyframes floatUp {
-            from {
-                transform: translateY(0) scale(1);
-                opacity: 1;
-            }
+    @keyframes floatUp {
+      from { transform: translateY(0) scale(1); opacity: 1; }
+      to { transform: translateY(-110vh) scale(1.5); opacity: 0; }
+    }
 
-            to {
-                transform: translateY(-110vh) scale(1.5);
-                opacity: 0;
-            }
-        }
-    </style>
+    @keyframes cinematicSlide {
+      0% { opacity: 0; transform: translateY(40px) scale(0.97); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .cinematic {
+      animation: cinematicSlide 1.2s ease-out forwards;
+    }
+
+    .cinematic-delay {
+      animation-delay: 0.4s;
+    }
+  </style>
 </head>
 
-<body
-    class="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-500 via-rose-500 to-red-500 text-white overflow-hidden">
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-500 via-rose-500 to-red-500 text-white overflow-hidden">
 
-    <!-- 🎵 BACKGROUND MUSIC -->
-    <audio id="bgMusic" preload="auto" loop>
-        <source src="audio/bg-music.mp3" type="audio/mpeg">
-    </audio>
+  <!-- 🔊 ENABLE SOUND OVERLAY (MOBILE FIX) -->
+  <div id="soundOverlay"
+       class="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+    <button onclick="enableSound()"
+      class="bg-white text-lovePink px-6 py-4 rounded-full font-bold text-lg animate-pulse">
+      🔊 Tap to enable sound
+    </button>
+  </div>
 
-    <!-- START SCREEN -->
-    <div id="start" class="relative z-10 bg-white/20 backdrop-blur-xl rounded-2xl p-8 max-w-sm text-center shadow-2xl">
-        <h1 class="text-2xl font-bold mb-4">Hey… 💌</h1>
-        <p class="text-lg mb-6">
-            I’ve been wanting to tell you something<br>
-            for a very long time…
-        </p>
-        <button onclick="nextStep()"
-            class="bg-white text-lovePink px-6 py-3 rounded-full font-bold hover:scale-105 transition">
-            Click to continue ❤️
-        </button>
+  <!-- 🎵 BACKGROUND MUSIC -->
+  <audio id="bgMusic" preload="auto" loop>
+    <source src="audio/bg-music.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- START SCREEN -->
+  <div id="start" class="relative z-10 bg-white/20 backdrop-blur-xl rounded-2xl p-8 max-w-sm text-center shadow-2xl">
+    <h1 class="text-2xl font-bold mb-4">Hey… 💌</h1>
+    <p class="text-lg mb-6">
+      I’ve been wanting to tell you something<br>
+      for a very long time…
+    </p>
+    <button onclick="nextStep()"
+      class="bg-white text-lovePink px-6 py-3 rounded-full font-bold hover:scale-105 transition">
+      Click to continue ❤️
+    </button>
+  </div>
+
+  <!-- LOADING SCREEN -->
+  <div id="loading" class="hidden relative z-10 bg-white/20 backdrop-blur-xl rounded-2xl p-8 max-w-sm text-center shadow-2xl">
+    <h1 id="countdown" class="text-2xl font-bold mb-4">Just a moment… 💗</h1>
+    <p class="text-lg">This isn’t easy to say…<br>Please wait 🥺</p>
+  </div>
+
+  <!-- QUESTION SCREEN -->
+  <div id="question" class="hidden relative z-10 bg-white/20 backdrop-blur-xl rounded-2xl p-8 max-w-sm text-center shadow-2xl">
+    <h1 class="text-2xl font-bold mb-6">Will you be my Valentine? 💖</h1>
+
+    <button onclick="yesClicked()"
+      class="bg-white text-lovePink px-6 py-3 rounded-full font-bold hover:scale-105 transition">
+      YES ❤️
+    </button>
+
+    <button id="noBtn"
+      class="absolute bg-loveRed px-6 py-3 rounded-full font-bold">
+      NO 💔
+    </button>
+  </div>
+
+  <!-- SURPRISE SCREEN -->
+  <div id="surprise"
+       class="hidden relative z-10 bg-white/20 backdrop-blur-xl rounded-2xl p-6 max-w-sm text-center shadow-2xl space-y-6 overflow-y-auto max-h-[85vh]">
+
+    <h1 class="text-3xl font-extrabold tracking-wide mb-2 cinematic drop-shadow-[0_6px_20px_rgba(255,0,120,0.6)]">
+      🔥 You chose the RIGHT choice 🔥
+    </h1>
+
+    <p class="text-lg font-medium opacity-90 cinematic cinematic-delay">
+      And this… is what you deserve 💎❤️
+    </p>
+
+    <!-- 🎥 VIDEO FIRST -->
+    <div class="bg-black/30 rounded-xl p-2 shadow-lg">
+      <video controls class="w-full rounded-lg">
+        <source src="PHOTOS/om.mp4" type="video/mp4">
+      </video>
     </div>
 
-    <!-- LOADING SCREEN -->
-    <div id="loading"
-        class="hidden relative z-10 bg-white/20 backdrop-blur-xl rounded-2xl p-8 max-w-sm text-center shadow-2xl">
-        <h1 id="countdown" class="text-2xl font-bold mb-4">Just a moment… 💗</h1>
-        <p class="text-lg">This isn’t easy to say…<br>Please wait 🥺</p>
+    <!-- 📸 PHOTOS -->
+    <div class="space-y-4">
+      <div class="bg-white/25 rounded-xl p-2 shadow-lg"><img src="PHOTOS/1.jpg" class="rounded-lg w-full"></div>
+      <div class="bg-white/25 rounded-xl p-2 shadow-lg"><img src="PHOTOS/2.jpg" class="rounded-lg w-full"></div>
+      <div class="bg-white/25 rounded-xl p-2 shadow-lg"><img src="PHOTOS/3.jpg" class="rounded-lg w-full"></div>
+      <div class="bg-white/25 rounded-xl p-2 shadow-lg"><img src="PHOTOS/4.jpg" class="rounded-lg w-full"></div>
+      <div class="bg-white/25 rounded-xl p-2 shadow-lg"><img src="PHOTOS/5.jpg" class="rounded-lg w-full"></div>
+      <div class="bg-white/25 rounded-xl p-2 shadow-lg"><img src="PHOTOS/6.jpg" class="rounded-lg w-full"></div>
+      <div class="bg-white/25 rounded-xl p-2 shadow-lg"><img src="PHOTOS/7.jpg" class="rounded-lg w-full"></div>
+      <div class="bg-white/25 rounded-xl p-2 shadow-lg"><img src="PHOTOS/8.jpg" class="rounded-lg w-full"></div>
+      <div class="bg-white/25 rounded-xl p-2 shadow-lg"><img src="PHOTOS/9.jpg" class="rounded-lg w-full"></div>
     </div>
 
-    <!-- QUESTION SCREEN -->
-    <div id="question"
-        class="hidden relative z-10 bg-white/20 backdrop-blur-xl rounded-2xl p-8 max-w-sm text-center shadow-2xl">
-        <h1 class="text-2xl font-bold mb-6">Will you be my Valentine? 💖</h1>
+    <p class="font-semibold">Happy Valentine’s Day 💖</p>
+  </div>
 
-        <button onclick="yesClicked()"
-            class="bg-white text-lovePink px-6 py-3 rounded-full font-bold hover:scale-105 transition">
-            YES ❤️
-        </button>
+  <!-- ❤️ JAVASCRIPT -->
+  <script>
+    // Floating hearts
+    setInterval(() => {
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+      heart.innerText = '❤️';
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.fontSize = (16 + Math.random() * 20) + 'px';
+      heart.style.animationDuration = (4 + Math.random() * 3) + 's';
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 7000);
+    }, 500);
 
-        <button id="noBtn" class="absolute bg-loveRed px-6 py-3 rounded-full font-bold">
-            NO 💔
-        </button>
-    </div>
+    function enableSound() {
+      const music = document.getElementById('bgMusic');
+      music.volume = 0.4;
+      music.play().catch(() => {});
+      document.getElementById('soundOverlay').style.display = 'none';
+    }
 
-    <!-- SURPRISE SCREEN -->
-    <div id="surprise"
-        class="hidden relative z-10 bg-white/20 backdrop-blur-xl rounded-2xl p-6 max-w-sm text-center shadow-2xl space-y-6 overflow-y-auto max-h-[85vh]">
+    function nextStep() {
+      document.getElementById('start').classList.add('hidden');
+      document.getElementById('loading').classList.remove('hidden');
 
-        <h1 class="text-3xl font-extrabold tracking-wide mb-4">
-            🔥 You choose the RIGHT choice 🔥
-        </h1>
+      let count = 3;
+      const el = document.getElementById('countdown');
 
-        <p class="text-lg font-medium opacity-90">
-            And this… is what you deserve 💎❤️
-        </p>
-
-        <!-- VIDEO FIRST -->
-        <div class="bg-black/30 rounded-xl p-2 shadow-lg">
-            <video controls class="w-full rounded-lg">
-                <source src="PHOTOS/om.mp4" type="video/mp4">
-            </video>
-        </div>
-
-        <!-- PHOTOS -->
-        <div class="space-y-4">
-            <div class="bg-white/25 rounded-xl p-2 shadow-lg"><img src="PHOTOS/1.jpg" class="rounded-lg w-full"></div>
-            <div class="bg-white/25 rounded-xl p-2 shadow-lg"><img src="PHOTOS/2.jpg" class="rounded-lg w-full"></div>
-            <div class="bg-white/25 rounded-xl p-2 shadow-lg"><img src="PHOTOS/3.jpg" class="rounded-lg w-full"></div>
-            <div class="bg-white/25 rounded-xl p-2 shadow-lg"><img src="PHOTOS/4.jpg" class="rounded-lg w-full"></div>
-            <div class="bg-white/25 rounded-xl p-2 shadow-lg"><img src="PHOTOS/5.jpg" class="rounded-lg w-full"></div>
-            <div class="bg-white/25 rounded-xl p-2 shadow-lg"><img src="PHOTOS/6.jpg" class="rounded-lg w-full"></div>
-            <div class="bg-white/25 rounded-xl p-2 shadow-lg"><img src="PHOTOS/7.jpg" class="rounded-lg w-full"></div>
-            <div class="bg-white/25 rounded-xl p-2 shadow-lg"><img src="PHOTOS/8.jpg" class="rounded-lg w-full"></div>
-            <div class="bg-white/25 rounded-xl p-2 shadow-lg"><img src="PHOTOS/9.jpg" class="rounded-lg w-full"></div>
-        </div>
-
-        <p class="font-semibold">Happy Valentine’s Day 💖</p>
-    </div>
-
-    <!-- ❤️ JAVASCRIPT -->
-    <script>
-        // Floating hearts generator
-        setInterval(() => {
-            const heart = document.createElement('div');
-            heart.className = 'heart';
-            heart.innerText = '❤️';
-            heart.style.left = Math.random() * 100 + 'vw';
-            heart.style.animationDuration = (4 + Math.random() * 3) + 's';
-            heart.style.fontSize = (16 + Math.random() * 20) + 'px';
-
-            document.body.appendChild(heart);
-            setTimeout(() => heart.remove(), 7000);
-        }, 500);
-
-        function nextStep() {
-            const music = document.getElementById('bgMusic');
-            music.volume = 0.4;
-            music.play().catch(() => { });
-
-            document.getElementById('start').classList.add('hidden');
-            document.getElementById('loading').classList.remove('hidden');
-
-            let count = 3;
-            const el = document.getElementById('countdown');
-
-            const timer = setInterval(() => {
-                el.innerText = count + '… ❤️';
-                count--;
-                if (count < 0) {
-                    clearInterval(timer);
-                    showQuestion();
-                }
-            }, 1000);
+      const timer = setInterval(() => {
+        el.innerText = count + '… ❤️';
+        count--;
+        if (count < 0) {
+          clearInterval(timer);
+          showQuestion();
         }
+      }, 1000);
+    }
 
-        function showQuestion() {
-            document.getElementById('loading').classList.add('hidden');
-            document.getElementById('question').classList.remove('hidden');
+    function showQuestion() {
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('question').classList.remove('hidden');
 
-            const noBtn = document.getElementById('noBtn');
-            noBtn.onmouseover = () => {
-                noBtn.style.left = Math.random() * 70 + '%';
-                noBtn.style.top = Math.random() * 70 + '%';
-            };
-        }
+      const noBtn = document.getElementById('noBtn');
+      noBtn.onmouseover = () => {
+        noBtn.style.left = Math.random() * 70 + '%';
+        noBtn.style.top = Math.random() * 70 + '%';
+      };
+    }
 
-        function yesClicked() {
-            document.getElementById('question').classList.add('hidden');
-            document.getElementById('surprise').classList.remove('hidden');
-        }
-    </script>
+    function yesClicked() {
+      document.getElementById('question').classList.add('hidden');
+      document.getElementById('surprise').classList.remove('hidden');
+    }
+  </script>
 
 </body>
-
 </html>
